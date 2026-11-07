@@ -1,0 +1,5 @@
+<resources>
+    <item name="primary_green" type="color">#10B981</item>
+    <item name="dark_green" type="color">#059669</item>
+    <item name="light_green_bg" type="color">#F9FAFB</item>
+</resources>

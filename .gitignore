@@ -4,3 +4,8 @@
 *.iml
 captures/
 .DS_Store
+.idea/
+build/
+.gradle/
+local.properties
+*.iml
