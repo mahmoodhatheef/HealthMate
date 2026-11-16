@@ -15,12 +15,13 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.healthmate.data.HealthDatabaseHelper
+import androidx.activity.viewModels
+import com.example.healthmate.viewmodel.HealthViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var dbHelper: HealthDatabaseHelper
+    private val viewModel: HealthViewModel by viewModels()
     private lateinit var fabAdd: FloatingActionButton
 
     private val prefs by lazy {
@@ -37,7 +38,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        dbHelper = HealthDatabaseHelper(this)
+
 
         fabAdd = findViewById(R.id.fabAdd)
 
@@ -374,7 +375,7 @@ class SettingsActivity : AppCompatActivity() {
 
         buttons.first.setOnClickListener {
 
-            val deleted = dbHelper.deleteAllRecords()
+            val deleted = viewModel.deleteAllRecords()
 
             if (deleted) {
                 Toast.makeText(

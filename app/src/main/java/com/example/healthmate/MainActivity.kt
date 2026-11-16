@@ -5,20 +5,22 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthmate.adapters.RecordsAdapter
-import com.example.healthmate.data.HealthDatabaseHelper
 import com.example.healthmate.models.HealthRecord
+import com.example.healthmate.viewmodel.HealthViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbHelper: HealthDatabaseHelper
+    private val viewModel: HealthViewModel by viewModels()
+
     private lateinit var tvDate: TextView
     private lateinit var tvStepsCount: TextView
     private lateinit var tvCalories: TextView
@@ -31,8 +33,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        dbHelper = HealthDatabaseHelper(this)
 
         tvDate = findViewById(R.id.tvDate)
         tvStepsCount = findViewById(R.id.tvStepsCount)
@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity() {
         val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
         tvDate.text = dateFormat.format(Date())
 
+        // Observe records from the ViewModel and update the dashboard
+        viewModel.records.observe(this) { records ->
+            showDashboard(records)
+        }
+
         fabAdd.setOnClickListener {
             startActivity(Intent(this, RecordFormActivity::class.java))
         }
@@ -57,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnRefresh.setOnClickListener {
-            loadDashboardData()
+            viewModel.loadRecords()
         }
 
         findViewById<View>(R.id.navHomeLayout)?.setOnClickListener { }
@@ -77,20 +82,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadDashboardData()
+        viewModel.loadRecords()
     }
 
-    private fun loadDashboardData() {
-        val records = dbHelper.getAllRecords()
+    private fun showDashboard(records: List<HealthRecord>) {
         if (records.isNotEmpty()) {
             val latest = records[0]
             tvStepsCount.text = latest.steps.toString()
             tvCalories.text = "${latest.calories} kcal"
             tvWater.text = "${latest.waterMl} ml"
 
-            val recentList = records.take(3)
             val adapter = RecordsAdapter(
-                recentList,
+                records.take(3),
                 onEditClick = { record: HealthRecord ->
                     val intent = Intent(this, RecordFormActivity::class.java)
                     intent.putExtra("RECORD_ID", record.id)
@@ -105,8 +108,7 @@ class MainActivity : AppCompatActivity() {
                         .setTitle("Delete Record")
                         .setMessage("Are you sure you want to delete this record?")
                         .setPositiveButton("Yes") { _, _ ->
-                            dbHelper.deleteRecord(record.id)
-                            loadDashboardData()
+                            viewModel.deleteRecord(record.id)
                         }
                         .setNegativeButton("No", null)
                         .show()

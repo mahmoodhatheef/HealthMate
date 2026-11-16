@@ -6,39 +6,43 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthmate.adapters.RecordsAdapter
-import com.example.healthmate.data.HealthDatabaseHelper
 import com.example.healthmate.models.HealthRecord
+import com.example.healthmate.viewmodel.HealthViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class RecordsListActivity : AppCompatActivity() {
 
-    private lateinit var dbHelper: HealthDatabaseHelper
+    private val viewModel: HealthViewModel by viewModels()
+
     private lateinit var rvRecords: RecyclerView
     private lateinit var etSearch: EditText
-    private lateinit var adapter: RecordsAdapter
     private lateinit var fabAdd: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_records_list)
 
-        dbHelper = HealthDatabaseHelper(this)
         rvRecords = findViewById(R.id.rvRecords)
         etSearch = findViewById(R.id.etSearch)
         fabAdd = findViewById(R.id.fabAdd)
 
         rvRecords.layoutManager = LinearLayoutManager(this)
-        loadRecords()
+
+        // Observe records from the ViewModel and refresh the list
+        viewModel.records.observe(this) { records ->
+            showRecords(records)
+        }
 
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                loadRecords(s.toString().trim())
+                viewModel.loadRecords(s.toString().trim())
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -64,13 +68,11 @@ class RecordsListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadRecords(etSearch.text.toString().trim())
+        viewModel.loadRecords(etSearch.text.toString().trim())
     }
 
-    private fun loadRecords(query: String = "") {
-        val records = if (query.isEmpty()) dbHelper.getAllRecords() else dbHelper.searchRecords(query)
-
-        adapter = RecordsAdapter(
+    private fun showRecords(records: List<HealthRecord>) {
+        rvRecords.adapter = RecordsAdapter(
             records,
             onEditClick = { record: HealthRecord ->
                 val intent = Intent(this, RecordFormActivity::class.java)
@@ -86,13 +88,11 @@ class RecordsListActivity : AppCompatActivity() {
                     .setTitle("Delete Record")
                     .setMessage("Are you sure you want to delete this record?")
                     .setPositiveButton("Yes") { _, _ ->
-                        dbHelper.deleteRecord(record.id)
-                        loadRecords(etSearch.text.toString().trim())
+                        viewModel.deleteRecord(record.id)
                     }
                     .setNegativeButton("No", null)
                     .show()
             }
         )
-        rvRecords.adapter = adapter
     }
 }

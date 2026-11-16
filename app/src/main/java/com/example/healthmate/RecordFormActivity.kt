@@ -5,13 +5,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.healthmate.data.HealthDatabaseHelper
 import com.example.healthmate.models.HealthRecord
+import com.example.healthmate.viewmodel.HealthViewModel
 
 class RecordFormActivity : AppCompatActivity() {
 
-    private lateinit var dbHelper: HealthDatabaseHelper
+    private val viewModel: HealthViewModel by viewModels()
+
     private lateinit var etDate: EditText
     private lateinit var etSteps: EditText
     private lateinit var etCalories: EditText
@@ -24,8 +26,6 @@ class RecordFormActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record_form)
-
-        dbHelper = HealthDatabaseHelper(this)
 
         etDate = findViewById(R.id.etDate)
         etSteps = findViewById(R.id.etSteps)
@@ -77,8 +77,7 @@ class RecordFormActivity : AppCompatActivity() {
             if (recordId == -1) {
                 // Add new record
                 val record = HealthRecord(date = dateStr, steps = steps, calories = calories, waterMl = water)
-                val success = dbHelper.addRecord(record)
-                if (success) {
+                if (viewModel.addRecord(record)) {
                     Toast.makeText(this, "Record saved successfully!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
@@ -87,8 +86,7 @@ class RecordFormActivity : AppCompatActivity() {
             } else {
                 // Update existing record
                 val record = HealthRecord(id = recordId, date = dateStr, steps = steps, calories = calories, waterMl = water)
-                val success = dbHelper.updateRecord(record)
-                if (success) {
+                if (viewModel.updateRecord(record)) {
                     Toast.makeText(this, "Record updated successfully!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {

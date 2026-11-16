@@ -10,14 +10,15 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.healthmate.data.HealthDatabaseHelper
+import androidx.activity.viewModels
+import com.example.healthmate.viewmodel.HealthViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
 
 class StatsActivity : AppCompatActivity() {
 
-    private lateinit var dbHelper: HealthDatabaseHelper
+    private val viewModel: HealthViewModel by viewModels()
 
     private lateinit var tvAvgSteps: TextView
     private lateinit var tvAvgCalories: TextView
@@ -52,7 +53,7 @@ class StatsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
 
-        dbHelper = HealthDatabaseHelper(this)
+
 
         tvAvgSteps = findViewById(R.id.tvAvgSteps)
         tvAvgCalories = findViewById(R.id.tvAvgCalories)
@@ -188,7 +189,8 @@ class StatsActivity : AppCompatActivity() {
 
     private fun loadStatistics(filter: String) {
 
-        val records = dbHelper.getAllRecords()
+        viewModel.loadRecords()
+val records = viewModel.records.value ?: emptyList()
         val totalCount = records.size
 
         if (totalCount > 0) {
