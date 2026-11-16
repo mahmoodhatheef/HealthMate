@@ -41,8 +41,8 @@ class RecordFormActivity : AppCompatActivity() {
             recordId = intent.getIntExtra("RECORD_ID", -1)
             etDate.setText(intent.getStringExtra("RECORD_DATE"))
             etSteps.setText(intent.getIntExtra("RECORD_STEPS", 0).toString())
-            etCalories.setText(intent.getDoubleExtra("RECORD_CALORIES", 0.0).toString())
-            etWater.setText(intent.getDoubleExtra("RECORD_WATER", 0.0).toString())
+            etCalories.setText(intent.getIntExtra("RECORD_CALORIES", 0).toString())
+            etWater.setText(intent.getIntExtra("RECORD_WATER", 0).toString())
             btnSave.text = "Update Record"
         }
 
@@ -58,18 +58,18 @@ class RecordFormActivity : AppCompatActivity() {
             }
 
             val steps = stepsStr.toIntOrNull()
-            val calories = caloriesStr.toDoubleOrNull()
-            val water = waterStr.toDoubleOrNull()
+            val calories = caloriesStr.toIntOrNull()
+            val water = waterStr.toIntOrNull()
 
             if (steps == null || steps < 0) {
                 Toast.makeText(this, "Steps must be a valid positive number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (calories == null || calories < 0.0) {
+            if (calories == null || calories < 0) {
                 Toast.makeText(this, "Calories must be a valid number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (water == null || water < 0.0) {
+            if (water == null || water < 0) {
                 Toast.makeText(this, "Water must be a valid number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

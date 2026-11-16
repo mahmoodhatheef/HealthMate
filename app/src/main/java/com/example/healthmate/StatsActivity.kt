@@ -194,8 +194,8 @@ class StatsActivity : AppCompatActivity() {
         if (totalCount > 0) {
 
             var totalSteps = 0
-            var totalCalories = 0.0
-            var totalWater = 0.0
+            var totalCalories = 0
+            var totalWater = 0
 
             for (record in records) {
                 totalSteps += record.steps
@@ -208,8 +208,8 @@ class StatsActivity : AppCompatActivity() {
             val avgWater = totalWater / totalCount
 
             tvAvgSteps.text = avgSteps.toString()
-            tvAvgCalories.text = "${String.format("%.1f", avgCalories)} kcal"
-            tvAvgWater.text = "${String.format("%.1f", avgWater)} ml"
+            tvAvgCalories.text = "$avgCalories kcal"
+            tvAvgWater.text = "$avgWater ml"
             tvTotalRecords.text = totalCount.toString()
 
             setBarHeight(bar1, 0)
